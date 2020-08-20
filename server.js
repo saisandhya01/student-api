@@ -1,7 +1,6 @@
 const express = require("express");
 const mysql = require("mysql");
 const bodyParser = require("body-parser");
-const flash = require("express-flash");
 const app = express();
 
 const db = mysql.createConnection({
@@ -62,6 +61,41 @@ app.delete("/delete", (req, res) => {
     console.log(result);
   });
 });
+
+app.get("/details/:value", (req, res) => {
+  const sql = `SELECT * FROM info WHERE rollno LIKE '${req.params.value}%' OR name LIKE '${req.params.value}%'`;
+  db.query(sql, (err, result) => {
+    if (err) throw err;
+    if (result.length !== 0) {
+      res.send(result);
+    } else {
+      res.send([]);
+    }
+  });
+});
+app.get("/get/num/:value", (req, res) => {
+  const sql = "SELECT * FROM info WHERE rollno=?";
+  db.query(sql, [req.params.value], (err, result) => {
+    if (err) throw err;
+    if (result.length === 0) {
+      res.send({});
+    } else {
+      res.send(result[0]);
+    }
+  });
+});
+app.get("/get/name/:value", (req, res) => {
+  const sql = "SELECT * FROM info WHERE name=?";
+  db.query(sql, [req.params.value], (err, result) => {
+    if (err) throw err;
+    if (result.length === 0) {
+      res.send({});
+    } else {
+      res.send(result[0]);
+    }
+  });
+});
+
 app.listen(4000, () => {
   console.log("Server is listening at Port 4000");
 });

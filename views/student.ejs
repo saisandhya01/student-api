@@ -6,6 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Details API</title>
     <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
         .hide {
             display: none;
         }
@@ -13,10 +18,22 @@
         .show {
             display: block;
         }
+
+        body>div {
+            margin: 10px;
+            border: 1px solid black;
+            padding: 10px;
+        }
     </style>
 </head>
 
 <body>
+    <div class="search" id="search-table">
+        <p>Search for roll number</p>
+        <input type="text" name="search" id="search-input">
+        <div id="match-list"></div>
+        <button id="search-submit">SEARCH</button>
+    </div>
     <div class="add">
         <button id="add-instruction">Add a new roll number</button>
         <div class="hide" id="add-details">
@@ -38,7 +55,7 @@
         </div>
     </div>
     <div class="delete">
-        <button id="delete-instruction">DELETE A RECORD</button>
+        <button id="delete-instruction">Delete a record</button>
         <div class="hide" id="delete-details">
             <lable for="delete-roll-number">Roll no: </lable>
             <input id="delete-roll-number" name="roll-no">
@@ -251,6 +268,88 @@
             msg.className = 'success-message-delete';
             msg.innerHTML = `Successfully deleted!`;
             deletei.appendChild(msg)
+
+        }
+        let search = document.getElementById('search-input')
+        let matchList = document.getElementById('match-list')
+        search.addEventListener('input', () => {
+            searchDetails(search.value)
+        })
+        function searchDetails(value) {
+            fetch(`/details/${value}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data)
+                    addHTML(data, value)
+                })
+        }
+        function isNumeric(n) {
+            return !isNaN(parseFloat(n)) && isFinite(n);
+        }
+        function addHTML(result, value) {
+            matchList.innerHTML = '';
+            if (result.length === 0) {
+                matchList.innerHTML = 'No results found';
+            }
+            else {
+                for (let i = 0; i < result.length; i++) {
+                    let p = document.createElement('p')
+                    p.style.cursor = 'pointer'
+                    if (isNumeric(value)) {
+                        p.innerHTML = `${result[i].rollno}`
+                    }
+                    else {
+                        p.innerHTML = `${result[i].name}`
+                    }
+                    p.onclick = () => {
+                        search.value = p.innerHTML;
+                        matchList.innerHTML = '';
+                    }
+                    matchList.appendChild(p)
+                }
+            }
+        }
+        let searchSubmit = document.getElementById('search-submit')
+        searchSubmit.onclick = () => {
+            let value = search.value
+            if (isNumeric(value)) {
+                searchByNumber(value);
+            }
+            else {
+                searchByName(value);
+            }
+        }
+        function searchByNumber(value) {
+            fetch(`/get/num/${value}`)
+                .then(response => response.json())
+                .then(data => {
+                    displaySearchResults(data)
+                })
+        }
+        function searchByName(value) {
+            fetch(`/get/name/${value}`)
+                .then(response => response.json())
+                .then(data => {
+                    displaySearchResults(data)
+                })
+        }
+        function displaySearchResults(result) {
+            let searchArea = document.getElementById('search-table')
+            if (document.getElementById('search-result')) {
+                document.getElementById('search-result').innerHTML = '';
+            }
+            else {
+                let div = document.createElement('div');
+                div.id = 'search-result'
+                searchArea.appendChild(div)
+            }
+            let wrappingDiv = document.getElementById('search-result')
+            let p = document.createElement('p')
+            p.innerHTML = `Name of the student: ${result.name}`
+            wrappingDiv.appendChild(p)
+            let p1 = document.createElement('p')
+            p1.innerHTML = `Roll no: ${result.rollno}`
+            wrappingDiv.appendChild(p1)
 
         }
     </script>
