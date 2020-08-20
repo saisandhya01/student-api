@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Details API</title>
+    <style>
+        .hide {
+            display: none;
+        }
+
+        .show {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="add">
+        <button id="add-instruction">Add a new roll number</button>
+        <div class="hide" id="add-details">
+            <lable for="add-roll-number">Roll Number: </lable>
+            <input id="add-roll-number" name="roll-no">
+            <lable for="add-name">Name of the student: </lable>
+            <input id="add-name" name="name">
+            <button id="add">ADD</button>
+        </div>
+    </div>
+    <div class="update">
+        <button id="update-instruction">Update Student Details</button>
+        <div class="hide" id="update-details">
+            <lable for="update-roll-number">Roll Number: </lable>
+            <input id="update-roll-number" name="roll-no">
+            <lable for="update-name">Name of the student: </lable>
+            <input id="update-name" name="name">
+            <button id="update">UPDATE</button>
+        </div>
+    </div>
+    <div class="delete">
+        <button id="delete-instruction">DELETE A RECORD</button>
+        <div class="hide" id="delete-details">
+            <lable for="delete-roll-number">Roll no: </lable>
+            <input id="delete-roll-number" name="roll-no">
+            <button id="delete">DELETE</button>
+        </div>
+    </div>
+    <script>
+        let addButton = document.getElementById('add-instruction');
+        let addDetails = document.getElementById('add-details');
+        let addToTable = document.getElementById('add');
+        let add = document.querySelector('.add');
+        addButton.onclick = () => {
+            addDetails.classList.toggle('show')
+        }
+        addToTable.onclick = () => {
+            let rollno = document.getElementById('add-roll-number').value;
+            let name = document.getElementById('add-name').value;
+            if (rollno && name) {
+                console.log(rollno, name)
+                if (rollno.length === 9 && name.length >= 3) {
+                    sendDetailsToServer(rollno, name)
+                    if (document.getElementById('error-message-add')) {
+                        document.getElementById('error-message-add').innerHTML = ''
+                    }
+                }
+                else {
+                    if (document.getElementById('error-message-add')) {
+                        document.getElementById('error-message-add').innerHTML = 'Please provide the correct details!'
+                    }
+                    else {
+                        let msg = document.createElement('div');
+                        msg.id = 'error-message-add';
+                        msg.innerHTML = `Please provide the correct details!`;
+                        add.appendChild(msg)
+
+                    }
+                }
+            }
+            else {
+                if (!document.getElementById('error-message-add')) {
+                    let msg = document.createElement('div');
+                    msg.id = 'error-message-add';
+                    msg.innerHTML = `Please provide the student's name and roll number`;
+                    add.appendChild(msg)
+                }
+            }
+        }
+        function sendDetailsToServer(rollno, name) {
+            const studentDetails = {
+                name: name,
+                rollno: rollno
+            }
+            var xhr = new window.XMLHttpRequest();
+            xhr.open('POST', '/add', true)
+            xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8')
+            xhr.send(JSON.stringify(studentDetails));
+            let msg = document.createElement('div');
+            msg.className = 'success-message-add';
+            msg.innerHTML = `Successfully Added!`;
+            add.appendChild(msg)
+
+        }
+        let updateButton = document.getElementById('update-instruction');
+        let updateDetails = document.getElementById('update-details');
+        let updateInTable = document.getElementById('update');
+        let update = document.querySelector('.update');
+        updateButton.onclick = () => {
+            updateDetails.classList.toggle('show')
+        }
+        updateInTable.onclick = () => {
+            let rollno = document.getElementById('update-roll-number').value;
+            let name = document.getElementById('update-name').value;
+            if (rollno && name) {
+                console.log(rollno, name)
+                if (rollno.length === 9 && name.length >= 3) {
+                    updateDetailsInServer(rollno, name)
+                    if (document.getElementById('error-message-update')) {
+                        document.getElementById('error-message-update').innerHTML = ''
+                    }
+                }
+                else {
+                    if (document.getElementById('error-message-update')) {
+                        document.getElementById('error-message-update').innerHTML = 'Please provide the correct details!'
+                    }
+                    else {
+                        let msg = document.createElement('div');
+                        msg.id = 'error-message-update';
+                        msg.innerHTML = `Please provide the correct details!`;
+                        update.appendChild(msg)
+
+                    }
+                }
+            }
+            else {
+                if (!document.getElementById('error-message-update')) {
+                    let msg = document.createElement('div');
+                    msg.id = 'error-message-update';
+                    msg.innerHTML = `Please provide the student's name and roll number`;
+                    update.appendChild(msg)
+                }
+            }
+        }
+        function updateDetailsInServer(rollno, name) {
+            const studentDetails = {
+                name: name,
+                rollno: rollno
+            }
+            var xhr = new window.XMLHttpRequest();
+            xhr.open('PUT', '/update', true)
+            xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8')
+            xhr.send(JSON.stringify(studentDetails));
+            let msg = document.createElement('div');
+            msg.className = 'success-message-update';
+            msg.innerHTML = `Successfully updated!`;
+            update.appendChild(msg)
+
+        }
+        let deleteButton = document.getElementById('delete-instruction');
+        let deleteDetails = document.getElementById('delete-details');
+        let deleteInTable = document.getElementById('delete');
+        let deletei = document.querySelector('.delete');
+        deleteButton.onclick = () => {
+            deleteDetails.classList.toggle('show')
+        }
+        deleteInTable.onclick = () => {
+            let rollno = document.getElementById('delete-roll-number').value;
+            if (rollno) {
+                console.log(rollno)
+                if (rollno.length === 9) {
+                    checkRecordIsPresent(rollno, '', 'DELETE')
+                    if (document.getElementById('error-message-delete')) {
+                        document.getElementById('error-message-delete').innerHTML = ''
+                    }
+                }
+                else {
+                    if (document.getElementById('error-message-delete')) {
+                        document.getElementById('error-message-delete').innerHTML = 'Please provide the correct details!'
+                    }
+                    else {
+                        let msg = document.createElement('div');
+                        msg.id = 'error-message-delete';
+                        msg.innerHTML = `Please provide the correct details!`;
+                        deletei.appendChild(msg)
+
+                    }
+                }
+            }
+            else {
+                if (!document.getElementById('error-message-delete')) {
+                    let msg = document.createElement('div');
+                    msg.id = 'error-message-delete';
+                    msg.innerHTML = `Please provide the student's roll no.`;
+                    deletei.appendChild(msg)
+                }
+            }
+        }
+        function checkRecordIsPresent(rollno, name, method) {
+            console.log(rollno, name, method)
+            fetch(`/number/${rollno}`)
+                .then(response => response.text())
+                .then(data => {
+                    console.log(data)
+                    if (method === 'DELETE') {
+                        if (data === 'yes') {
+                            deleteRecord(rollno)
+                        }
+                        else {
+                            let msg = document.createElement('div');
+                            msg.className = 'success-message-delete';
+                            msg.innerHTML = `Record does not exist`;
+                            deletei.appendChild(msg)
+
+                        }
+                    }
+                })
+
+        }
+        function deleteRecord(rollno) {
+            const studentDetails = {
+                rollno: rollno
+            }
+            var xhr = new window.XMLHttpRequest();
+            xhr.open('DELETE', '/delete', true)
+            xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8')
+            xhr.send(JSON.stringify(studentDetails));
+            let msg = document.createElement('div');
+            msg.className = 'success-message-delete';
+            msg.innerHTML = `Successfully deleted!`;
+            deletei.appendChild(msg)
+
+        }
+    </script>
+</body>
+
+</html>
