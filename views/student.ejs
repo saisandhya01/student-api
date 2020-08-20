@@ -34,6 +34,11 @@
         <div id="match-list"></div>
         <button id="search-submit">SEARCH</button>
     </div>
+    <div id="search-dept">
+        <p>Search for department</p>
+        <input type="number" name="dept" id="search-dept-input">
+        <div id="match-list-dept"></div>
+    </div>
     <div class="add">
         <button id="add-instruction">Add a new roll number</button>
         <div class="hide" id="add-details">
@@ -41,6 +46,8 @@
             <input id="add-roll-number" name="roll-no">
             <lable for="add-name">Name of the student: </lable>
             <input id="add-name" name="name">
+            <lable for="add-dept">Department: </lable>
+            <input id="add-dept" name="dept">
             <button id="add">ADD</button>
         </div>
     </div>
@@ -51,6 +58,8 @@
             <input id="update-roll-number" name="roll-no">
             <lable for="update-name">Name of the student: </lable>
             <input id="update-name" name="name">
+            <lable for="update-dept">Department: </lable>
+            <input id="update-dept" name="dept">
             <button id="update">UPDATE</button>
         </div>
     </div>
@@ -73,10 +82,11 @@
         addToTable.onclick = () => {
             let rollno = document.getElementById('add-roll-number').value;
             let name = document.getElementById('add-name').value;
-            if (rollno && name) {
+            let dept = document.getElementById('add-dept').value
+            if (rollno && name && dept) {
                 console.log(rollno, name)
                 if (rollno.length === 9 && name.length >= 3) {
-                    checkRecordIsPresent(rollno, name, 'POST')
+                    checkRecordIsPresent(rollno, name, dept, 'POST')
                     if (document.getElementById('error-message-add')) {
                         document.getElementById('error-message-add').innerHTML = ''
                     }
@@ -103,10 +113,11 @@
                 }
             }
         }
-        function sendDetailsToServer(rollno, name) {
+        function sendDetailsToServer(rollno, name, dept) {
             const studentDetails = {
                 name: name,
-                rollno: rollno
+                rollno: rollno,
+                dept: dept
             }
             var xhr = new window.XMLHttpRequest();
             xhr.open('POST', '/add', true)
@@ -128,10 +139,11 @@
         updateInTable.onclick = () => {
             let rollno = document.getElementById('update-roll-number').value;
             let name = document.getElementById('update-name').value;
-            if (rollno && name) {
+            let dept = document.getElementById('update-dept').value;
+            if (rollno && name && dept) {
                 console.log(rollno, name)
                 if (rollno.length === 9 && name.length >= 3) {
-                    checkRecordIsPresent(rollno, name, 'PUT')
+                    checkRecordIsPresent(rollno, name, dept, 'PUT')
                     if (document.getElementById('error-message-update')) {
                         document.getElementById('error-message-update').innerHTML = ''
                     }
@@ -158,10 +170,11 @@
                 }
             }
         }
-        function updateDetailsInServer(rollno, name) {
+        function updateDetailsInServer(rollno, name, dept) {
             const studentDetails = {
                 name: name,
-                rollno: rollno
+                rollno: rollno,
+                dept: dept
             }
             var xhr = new window.XMLHttpRequest();
             xhr.open('PUT', '/update', true)
@@ -185,7 +198,7 @@
             if (rollno) {
                 console.log(rollno)
                 if (rollno.length === 9) {
-                    checkRecordIsPresent(rollno, '', 'DELETE')
+                    checkRecordIsPresent(rollno, '', '', 'DELETE')
                     if (document.getElementById('error-message-delete')) {
                         document.getElementById('error-message-delete').innerHTML = ''
                     }
@@ -212,7 +225,7 @@
                 }
             }
         }
-        function checkRecordIsPresent(rollno, name, method) {
+        function checkRecordIsPresent(rollno, name, dept, method) {
             console.log(rollno, name, method)
             fetch(`/number/${rollno}`)
                 .then(response => response.text())
@@ -239,7 +252,7 @@
 
                         }
                         else {
-                            sendDetailsToServer(rollno, name)
+                            sendDetailsToServer(rollno, name, dept)
                         }
                     }
                     else if (method === 'PUT') {
@@ -350,7 +363,34 @@
             let p1 = document.createElement('p')
             p1.innerHTML = `Roll no: ${result.rollno}`
             wrappingDiv.appendChild(p1)
-
+            let p2 = document.createElement('p')
+            p2.innerHTML = `Department: ${result.dept}`
+            wrappingDiv.appendChild(p2)
+        }
+        let searchDept = document.getElementById('search-dept-input')
+        let matchListDept = document.getElementById('match-list-dept')
+        searchDept.addEventListener('input', () => {
+            searchDeptFunction(searchDept.value)
+        })
+        function searchDeptFunction(value) {
+            fetch(`/dept/${value}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data)
+                    if (data.length === 0) {
+                        matchListDept.innerHTML = 'No department found!'
+                    }
+                    else {
+                        addDeptHTML(data);
+                    }
+                })
+        }
+        function addDeptHTML(result) {
+            for (let i = 0; i < result.length; i++) {
+                let p = document.createElement('p')
+                p.innerHTML = result[i].dept
+                matchListDept.appendChild(p)
+            }
         }
     </script>
 </body>

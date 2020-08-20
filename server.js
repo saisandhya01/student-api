@@ -95,7 +95,18 @@ app.get("/get/name/:value", (req, res) => {
     }
   });
 });
-
+app.get("/dept/:value", (req, res) => {
+  const sql = `SELECT DISTINCT dept FROM info WHERE rollno LIKE '${req.params.value}%'`;
+  db.query(sql, (err, result) => {
+    if (err) throw err;
+    console.log(result);
+    if (result.length === 0) {
+      res.send([]);
+    } else {
+      res.send(result);
+    }
+  });
+});
 app.listen(4000, () => {
   console.log("Server is listening at Port 4000");
 });
