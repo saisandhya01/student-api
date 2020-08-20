@@ -26,40 +26,19 @@ app.get("/", (req, res) => {
 });
 app.post("/add", (req, res) => {
   const studentDetails = req.body;
-  console.log(studentDetails);
-  const sql = "SELECT * FROM info WHERE rollno=?";
-  db.query(sql, [req.body.rollno], (err, result) => {
+  const sql = "INSERT INTO info SET ?";
+  db.query(sql, studentDetails, (err, result) => {
     if (err) throw err;
-    if (result.length === 0) {
-      const sql2 = "INSERT INTO info SET ?";
-      db.query(sql2, studentDetails, (err, result2) => {
-        if (err) throw err;
-        console.log(result2);
-      });
-    } else {
-      res.render("student", { exist1: "Record is present already!" });
-    }
+    console.log(result);
   });
 });
 app.put("/update", (req, res) => {
   const studentDetails = req.body;
   console.log(studentDetails);
-  const sql = "SELECT * FROM info WHERE rollno=?";
-  db.query(sql, [req.body.rollno], (err, result) => {
+  const sql = "UPDATE info SET name=? WHERE rollno=?";
+  db.query(sql, [studentDetails.name, studentDetails.rollno], (err, result) => {
     if (err) throw err;
-    if (result.length !== 0) {
-      const sql2 = "UPDATE info SET name=? WHERE rollno=?";
-      db.query(
-        sql2,
-        [studentDetails.name, studentDetails.rollno],
-        (err, result2) => {
-          if (err) throw err;
-          console.log(result2);
-        }
-      );
-    } else {
-      res.render("student");
-    }
+    console.log(result);
   });
 });
 

@@ -59,7 +59,7 @@
             if (rollno && name) {
                 console.log(rollno, name)
                 if (rollno.length === 9 && name.length >= 3) {
-                    sendDetailsToServer(rollno, name)
+                    checkRecordIsPresent(rollno, name, 'POST')
                     if (document.getElementById('error-message-add')) {
                         document.getElementById('error-message-add').innerHTML = ''
                     }
@@ -114,7 +114,7 @@
             if (rollno && name) {
                 console.log(rollno, name)
                 if (rollno.length === 9 && name.length >= 3) {
-                    updateDetailsInServer(rollno, name)
+                    checkRecordIsPresent(rollno, name, 'PUT')
                     if (document.getElementById('error-message-update')) {
                         document.getElementById('error-message-update').innerHTML = ''
                     }
@@ -211,6 +211,29 @@
                             msg.innerHTML = `Record does not exist`;
                             deletei.appendChild(msg)
 
+                        }
+                    }
+                    else if (method === 'POST') {
+                        if (data === 'yes') {
+                            let msg = document.createElement('div');
+                            msg.className = 'success-message-add';
+                            msg.innerHTML = `Record already exists`;
+                            add.appendChild(msg)
+
+                        }
+                        else {
+                            sendDetailsToServer(rollno, name)
+                        }
+                    }
+                    else if (method === 'PUT') {
+                        if (data === 'yes') {
+                            updateDetailsInServer(rollno, name)
+                        }
+                        else {
+                            let msg = document.createElement('div');
+                            msg.className = 'success-message-update';
+                            msg.innerHTML = `Record does not exist`;
+                            update.appendChild(msg)
                         }
                     }
                 })
