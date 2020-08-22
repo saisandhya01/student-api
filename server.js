@@ -31,6 +31,26 @@ app.post("/add", (req, res) => {
     console.log(result);
   });
 });
+app.post("/add/query", (req, res) => {
+  const studentDetails = {
+    name: req.query.name,
+    rollno: req.query.rollno,
+    dept: req.query.dept,
+  };
+  const sql = "SELECT * FROM info WHERE rollno=?";
+  db.query(sql, [studentDetails.rollno], (err, result) => {
+    if (err) throw err;
+    if (result.length !== 0) {
+      res.send("Record already exists");
+    } else {
+      const sql2 = "INSERT INTO info SET ?";
+      db.query(sql2, studentDetails, (err, result) => {
+        if (err) throw err;
+        res.send("Data successfully added!");
+      });
+    }
+  });
+});
 app.put("/update", (req, res) => {
   const studentDetails = req.body;
   console.log(studentDetails);
@@ -38,6 +58,30 @@ app.put("/update", (req, res) => {
   db.query(sql, [studentDetails.name, studentDetails.rollno], (err, result) => {
     if (err) throw err;
     console.log(result);
+  });
+});
+app.put("/update/query", (req, res) => {
+  const studentDetails = {
+    name: req.query.name,
+    rollno: req.query.rollno,
+    dept: req.query.dept,
+  };
+  const sql = "SELECT * FROM info WHERE rollno=?";
+  db.query(sql, [studentDetails.rollno], (err, result) => {
+    if (err) throw err;
+    if (result.length === 0) {
+      res.send("Record does not exist");
+    } else {
+      const sql = "UPDATE info SET name=? WHERE rollno=?";
+      db.query(
+        sql,
+        [studentDetails.name, studentDetails.rollno],
+        (err, result) => {
+          if (err) throw err;
+          res.send("Successfully updated!");
+        }
+      );
+    }
   });
 });
 
@@ -59,6 +103,21 @@ app.delete("/delete", (req, res) => {
   db.query(sql, [studentDetails.rollno], (err, result) => {
     if (err) throw err;
     console.log(result);
+  });
+});
+app.delete("/delete/:value", (req, res) => {
+  const sql = "SELECT * FROM info WHERE rollno=?";
+  db.query(sql, [req.params.value], (err, result) => {
+    if (err) throw err;
+    if (result.length === 0) {
+      res.send("Record does not exist");
+    } else {
+      const sql = "DELETE FROM info WHERE rollno=?";
+      db.query(sql, [req.params.value], (err, result) => {
+        if (err) throw err;
+        res.send("Successfully deleted!");
+      });
+    }
   });
 });
 
